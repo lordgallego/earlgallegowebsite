@@ -48,8 +48,8 @@ const ProjectGallery = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] p-0 overflow-hidden">
-        <div className="p-6 pb-3">
+      <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] p-0 flex flex-col overflow-hidden">
+        <div className="p-6 pb-3 flex-shrink-0">
           <DialogHeader>
             <DialogTitle
               className="text-xl font-semibold tracking-wide uppercase"
@@ -64,12 +64,12 @@ const ProjectGallery = ({
         </div>
 
         {/* Main image viewer */}
-        <div className="relative bg-black/5 dark:bg-white/5">
-          <div className="relative aspect-[16/10] flex items-center justify-center">
+        <div className="relative flex-1 min-h-0 bg-black/5 dark:bg-white/5">
+          <div className="relative h-full flex items-center justify-center p-2">
             <img
               src={images[selectedIndex]}
               alt={`${title} — ${selectedIndex + 1} of ${images.length}`}
-              className="max-w-full max-h-full object-contain pointer-events-none select-none"
+              className="max-w-full max-h-[55vh] object-contain pointer-events-none select-none"
               draggable={false}
             />
 
@@ -101,8 +101,8 @@ const ProjectGallery = ({
 
         {/* Thumbnail strip */}
         {images.length > 1 && (
-          <div className="px-6 pb-5 pt-3">
-            <div className="flex gap-2 overflow-x-auto">
+          <div className="flex-shrink-0 px-6 pb-5 pt-3">
+            <div className="flex gap-2 overflow-x-auto pb-1">
               {images.map((img, i) => (
                 <button
                   key={img}
