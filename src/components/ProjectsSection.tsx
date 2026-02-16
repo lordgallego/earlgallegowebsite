@@ -142,6 +142,7 @@ const ProjectsSection = () => {
                   <img
                     src={p.cover}
                     alt={p.title}
+                    loading="lazy"
                     className="w-full h-full object-cover pointer-events-none select-none transition-transform duration-500 group-hover:scale-105"
                     draggable={false}
                     style={{ WebkitUserDrag: "none" } as React.CSSProperties}

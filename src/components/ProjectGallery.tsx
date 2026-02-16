@@ -69,6 +69,7 @@ const ProjectGallery = ({
             <img
               src={images[selectedIndex]}
               alt={`${title} — ${selectedIndex + 1} of ${images.length}`}
+              loading="lazy"
               className="max-w-full max-h-[55vh] object-contain pointer-events-none select-none"
               draggable={false}
             />
@@ -116,6 +117,7 @@ const ProjectGallery = ({
                   <img
                     src={img}
                     alt={`Thumbnail ${i + 1}`}
+                    loading="lazy"
                     className="w-full h-full object-cover pointer-events-none select-none"
                     draggable={false}
                   />
