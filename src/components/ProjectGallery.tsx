@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 interface ProjectGalleryProps {
   open: boolean;
@@ -24,10 +24,43 @@ const ProjectGallery = ({
   images,
 }: ProjectGalleryProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const preloadedRef = useRef<Set<string>>(new Set());
 
+  // Reset on open
   useEffect(() => {
-    if (open) setSelectedIndex(0);
+    if (open) {
+      setSelectedIndex(0);
+      setImageLoaded(false);
+      preloadedRef.current.clear();
+    }
   }, [open]);
+
+  // Mark loading on index change, and preload neighbors
+  useEffect(() => {
+    const src = images[selectedIndex];
+
+    // If already cached by browser, onLoad fires synchronously — but
+    // we still reset to false first so the fade-in triggers correctly.
+    if (preloadedRef.current.has(src)) {
+      setImageLoaded(true);
+    } else {
+      setImageLoaded(false);
+    }
+
+    // Preload the next and previous images in the background
+    const toPreload = [
+      images[(selectedIndex + 1) % images.length],
+      images[(selectedIndex - 1 + images.length) % images.length],
+    ];
+    toPreload.forEach((url) => {
+      if (!preloadedRef.current.has(url)) {
+        const img = new Image();
+        img.src = url;
+        img.onload = () => preloadedRef.current.add(url);
+      }
+    });
+  }, [selectedIndex, images]);
 
   const goTo = useCallback(
     (dir: 1 | -1) => {
@@ -45,6 +78,11 @@ const ProjectGallery = ({
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [open, goTo]);
+
+  const handleImageLoad = () => {
+    preloadedRef.current.add(images[selectedIndex]);
+    setImageLoaded(true);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -66,11 +104,21 @@ const ProjectGallery = ({
         {/* Main image viewer */}
         <div className="relative flex-1 min-h-0 bg-black/5 dark:bg-white/5">
           <div className="relative h-full flex items-center justify-center p-2">
+            {/* Loading spinner */}
+            {!imageLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            )}
+
             <img
+              key={images[selectedIndex]}
               src={images[selectedIndex]}
               alt={`${title} — ${selectedIndex + 1} of ${images.length}`}
-              loading="lazy"
-              className="max-w-full max-h-[55vh] object-contain pointer-events-none select-none"
+              onLoad={handleImageLoad}
+              className={`max-w-full max-h-[55vh] object-contain pointer-events-none select-none transition-opacity duration-300 ${
+                imageLoaded ? "opacity-100" : "opacity-0"
+              }`}
               draggable={false}
             />
 
